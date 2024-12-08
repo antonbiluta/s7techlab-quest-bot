@@ -44,7 +44,7 @@ def init_settings(param_name: str, is_work: bool, params: [str, None]):
             if not exists:
                 cursor.execute('''
                     INSERT INTO settings (parameter_name, is_work, params) VALUES (?, ?, ?)
-                ''', (param_name, is_work, params, param_name))
+                ''', (param_name, is_work, params))
 
 
 def get_settings_by_param_name(param_name: str):
