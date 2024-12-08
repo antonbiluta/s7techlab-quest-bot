@@ -15,7 +15,8 @@ user_selections = {}
 
 def create_keyboard_with_selected_teams(user_data: dict, teams: List[TeamChat]) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
-    for team in teams:
+    sorted_teams = sorted(teams, key=lambda item: item.name.lower())
+    for team in sorted_teams:
         selected = ""
         if user_data.items():
             selected = "✅" if team.group_id in user_data["selected_teams"] else ""
@@ -69,7 +70,7 @@ async def select_all(callback: CallbackQuery):
     if len(user_data["selected_teams"]) == len(teams):
         user_data["selected_teams"].clear()
     else:
-        user_data["selected_teams"] = [team[2] for team in teams]
+        user_data["selected_teams"] = [team.group_id for team in teams]
     keyboard = create_keyboard_with_selected_teams(user_data, teams)
     await callback.message.edit_reply_markup(reply_markup=keyboard.as_markup())
 
