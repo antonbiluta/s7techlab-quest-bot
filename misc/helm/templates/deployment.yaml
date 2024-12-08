@@ -25,10 +25,3 @@ spec:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
               memory: {{ .Values.resources.requests.memory }}
-          volumeMounts:
-            - name: bot-storage
-              mountPath: /app/data/databases
-      volumes:
-        - name: bot-storage
-          persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-bot-pvc

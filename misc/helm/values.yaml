@@ -12,8 +12,3 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
-
-persistence:
-  enable: true
-  accessMode: ReadWriteOnce
-  size: 256Mi
