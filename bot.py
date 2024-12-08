@@ -46,7 +46,7 @@ async def init_new_settings():
 
 
 async def main():
-    config_manager = ConfigManager(config_server_url="https://memes-config.biluta.ru")
+    config_manager = ConfigManager()
     await config_manager.load_config()
     await update_globals(config_manager.config)
     config_manager.add_listener(update_globals)
