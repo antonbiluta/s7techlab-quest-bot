@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: harbor.biluta.ru/tg-bots/s7quest
-  tag: latest
+  tag: main-latest
   pullPolicy: Always
 
 resources:
