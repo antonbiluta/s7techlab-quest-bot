@@ -26,8 +26,8 @@ spec:
               cpu: {{ .Values.resources.requests.cpu }}
               memory: {{ .Values.resources.requests.memory }}
           volumeMounts:
-            - mountPath: bot-storage
-              name: /app/data
+            - name: bot-storage
+              mountPath: /app/data/databases
       volumes:
         - name: bot-storage
           persistentVolumeClaim:

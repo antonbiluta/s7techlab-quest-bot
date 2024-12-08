@@ -1,7 +1,7 @@
 import sqlite3
 from contextlib import closing
 
-DB_PATH = "questbot.db"
+DB_PATH = "data/databases/questbot.db"
 
 
 def initialize_db():
