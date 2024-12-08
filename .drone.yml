@@ -47,8 +47,4 @@ steps:
       KUBE_NS: biluta-bots
       <<: *kuber_creds
     commands:
-      - helm upgrade -i s7quest-bot-${DRONE_BRANCH} misc/helm \
-          --set image.tag=${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} \
-          -f misc/helm/values.yaml \
-          -n biluta-bots \
-          --wait
+      - helm upgrade -i s7quest-bot-${DRONE_BRANCH} misc/helm --set image.tag=${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -f misc/helm/values.yaml -n biluta-bots --wait
