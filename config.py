@@ -8,7 +8,7 @@ from spring_centralized_config_client.client import SpringCentralizedConfigClien
 
 class ConfigManager:
     def __init__(self,
-                 config_server_url: str = "http://config-server.biluta-memes-dev.svc.cluster.local:8888",
+                 config_server_url: str = "http://config-server.biluta-tech.svc.cluster.local:8888",
                  app_name: str = "s7quest",
                  profile: str = "default"):
         self.client = SpringCentralizedConfigClient(app_name=app_name, profile=profile, url=config_server_url)
