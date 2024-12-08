@@ -1,0 +1,5 @@
+apiVersion: v2
+name: s7techlab-quest-bot
+description: Telegram Bot for S7Techlab New Year Quest
+version: 0.1.0
+appVersion: "1.0"

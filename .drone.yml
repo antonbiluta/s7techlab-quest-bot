@@ -1,0 +1,50 @@
+kind: pipeline
+type: kubernetes
+name: build-deploy-dev
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+    - custom
+
+globals:
+  - &docker_creds
+    username:
+      from_secret: registry_robot_name
+    password:
+      from_secret: registry_robot_token
+  - &kuber_creds
+    kubernetes_token:
+      from_secret: k3s_token
+    api_server:
+      from_secret: k3s_uri
+    namespace:
+      from_secret: app_namespace
+
+steps:
+
+  - name: build
+    image: plugins/docker
+    settings:
+      <<: *docker_creds
+      registry: harbor.biluta.ru
+      repo: harbor.biluta.ru/tg-bots/s7quest
+      context: .
+      dockerfile: misc/Dockerfile
+      tags:
+        - ${DRONE_BRANCH}-${DRONE_BUILD_NUMBER}
+        - ${DRONE_BRANCH}-latest
+
+  - name: deploy
+    image: alpine/helm:3.5.4
+    environment:
+      IMAGE_TAG: ${DRONE_BRANCH}-${DRONE_BUILD_NUMBER}
+      SERVICE_NAME: s7techlab-quest-bot
+      REGISTRY_URL: harbor.biluta.ru
+      REGISTRY_PATH: tg-bots
+      KUBE_NS: biluta-bots
+      <<: *kuber_creds
+    commands:
+      - helm upgrade -i s7quest-bot-${DRONE_BRANCH} misc/helm --set image.tag=${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -f misc/helm/values.yaml -n biluta-bots

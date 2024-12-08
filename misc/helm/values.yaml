@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: harbor.biluta.ru/tg-bots/s7quest
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+persistence:
+  enable: true
+  accessMode: ReadWriteOnce
+  size: 256Mi
