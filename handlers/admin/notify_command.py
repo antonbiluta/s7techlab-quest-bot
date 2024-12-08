@@ -1,22 +1,25 @@
+from typing import List
+
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from data import db
+from data.crud import team as team_repository
+from data.models.team import TeamChat
 
 router = Router()
 
 user_selections = {}
 
 
-def create_keyboard_with_selected_teams(user_data: dict, teams: list) -> InlineKeyboardBuilder:
+def create_keyboard_with_selected_teams(user_data: dict, teams: List[TeamChat]) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     for team in teams:
         selected = ""
         if user_data.items():
-            selected = "✅" if team[2] in user_data["selected_teams"] else ""
-        keyboard.button(text=f"{selected} {team[1]}", callback_data=f"select_team:{team[2]}")
+            selected = "✅" if team.group_id in user_data["selected_teams"] else ""
+        keyboard.button(text=f"{selected} {team.name}", callback_data=f"select_team:{team.group_id}")
     keyboard.button(text="Отметить всех", callback_data="notify_select_all")
     keyboard.button(text="Отправить", callback_data="notify_send_message")
     keyboard.button(text="Отмена ❌", callback_data="cancel")
@@ -33,7 +36,7 @@ async def notify(message: Message):
         "original_message": message.reply_to_message,
         "selected_teams": []
     }
-    teams = db.get_all_chats()
+    teams = await team_repository.get_all_teams()
     keyboard = create_keyboard_with_selected_teams(user_data=dict(), teams=teams)
     await message.reply("Выберите команды для отправки сообщения:", reply_markup=keyboard.as_markup())
 
@@ -50,7 +53,7 @@ async def select_team(callback: CallbackQuery):
         user_data["selected_teams"].remove(chat_id)
     else:
         user_data["selected_teams"].append(chat_id)
-    teams = db.get_all_chats()
+    teams = await team_repository.get_all_teams()
     keyboard = create_keyboard_with_selected_teams(user_data, teams)
     await callback.message.edit_reply_markup(reply_markup=keyboard.as_markup())
 
@@ -62,7 +65,7 @@ async def select_all(callback: CallbackQuery):
         await callback.message.reply("Сессия истекла. Введите /notify снова.")
         return
     user_data = user_selections[user_id]
-    teams = db.get_all_chats()
+    teams = await team_repository.get_all_teams()
     if len(user_data["selected_teams"]) == len(teams):
         user_data["selected_teams"].clear()
     else:

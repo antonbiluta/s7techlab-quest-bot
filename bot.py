@@ -7,6 +7,9 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.token import validate_token
 from aiogram.methods import DeleteWebhook
 
+from data.base import db_manager
+from data.crud import team as team_repository
+from data.crud import settings as settings_repository
 from filters.admin_chat_middleware import AdminChatMiddleware
 from filters.admin_filter import AdminFilter
 from filters.variables_middleware import Variables
@@ -17,7 +20,6 @@ from handlers.common import router as common_router
 
 from config import ConfigManager, update_globals
 
-from data.db import initialize_db, add_chat, init_settings
 from utils.admin_help import set_admin_commands
 
 
@@ -30,38 +32,36 @@ def run_background_tasks(config_manager):
     asyncio.create_task(config_manager.start_auto_refresh())
 
 
-async def init_team(config: dict):
-    quest = config["quest"]
-    quest_parameters = quest["parameters"]
-    default_limit = quest_parameters.get("default_limit", 1)
-    teams_info = quest_parameters.get("teams_info", dict())
-    for team_code, values in teams_info.items():
-        chat_id = values['chat_id']
-        link = values['link']
-        add_chat(team_code, chat_id, default_limit, link)
-
-
 async def init_new_settings():
-    init_settings("get_default_members", False, None)
+    await settings_repository.create_settings(name="default_members")
 
 
-async def main():
+async def init_config() -> dict:
     config_manager = ConfigManager()
     await config_manager.load_config()
     await update_globals(config_manager.config)
     config_manager.add_listener(update_globals)
     run_background_tasks(config_manager)
+    return config_manager.config
 
-    config = config_manager.config
+
+async def init_db(config: dict):
+    database_url = config["datasource"]["url"]
+    db_manager.init_engine(database_url)
+    await db_manager.create_tables()
+    await init_new_settings()
+    default_on = await settings_repository.get_settings_by_name("default_members")
+    await team_repository.init_teams_from_config(config, default_on.is_work)
+
+
+async def main():
+    config = await init_config()
     bot = config["bot"]
     bot_parameters = bot["parameters"]
     bot_token = bot.get("token")
     validate(bot_token)
 
-    initialize_db()
-    await init_new_settings()
-
-    await init_team(config)
+    await init_db(config)
 
     bot = Bot(token=bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher(storage=MemoryStorage())
