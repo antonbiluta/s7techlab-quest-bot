@@ -14,8 +14,8 @@ router = Router()
 async def handle_keyword(message: Message, config: dict):
     if is_service_message(message):
         return
-    existing_user = await user_repository.get_user(user_id=message.from_user.id)
-    if is_not_exist(existing_user) and chat_type_is_private(message):
+    existing_team = await user_repository.get_user_team(user_id=message.from_user.id)
+    if is_not_exist(existing_team) and chat_type_is_private(message):
         await check_user_team(message, config)
         return
 
