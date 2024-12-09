@@ -21,7 +21,7 @@ async def quest_test(message: Message):
     teams = await team_repository.get_all_teams()
     quest_message = {
         "text": "Квест начинается! Все готовы? 🚀",
-        "interval": "5"
+        "interval": 5
     }
     await send_for_all(teams, message.bot, quest_message)
     await func_quest(teams, message.bot)
